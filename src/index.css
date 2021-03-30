@@ -13,7 +13,8 @@
   flex-direction: column;
 }
 
-.sidebar img {
+.bg-blue {
+  background-color: #006bf1;
 }
 
 .sidebar div {

@@ -2,9 +2,9 @@ import Sidebar from "./components/Sidebar"
 
 function App() {
   return (
-    <div className="App">
+    <div className="App container-fluid">
       <div className="row">
-        <div className="col-lg-5">
+        <div className="col-lg-5 bg-blue">
           <Sidebar/>
         </div>
         <div className="col-lg-7">
@@ -26,10 +26,6 @@ function App() {
               </div>
               <div class="form-group">
                 <label htmlFor="name">Mot de passe</label>
-                <input class="form-control" />
-              </div>
-              <div class="form-group">
-                <label htmlFor="name">Mot de passe (confirmation)</label>
                 <input class="form-control" />
               </div>
               <div class="form-group">
