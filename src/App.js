@@ -1,5 +1,19 @@
 import Aside from "./components/Aside";
 import { useFormik } from "formik";
+import * as yup from "yup";
+
+const validationSchema = yup.object({
+  name: yup.string().required("Le nom est obligatoire"),
+  email: yup.string().required('L\'adresse e-mail est obligatoire')
+          .email("Veuillez saisir une adresse e-mail validate"),
+  password: yup.string().required("Le mot de passe est obligatoire").min(8),
+  passwordConfirmation: yup.string()
+        .required("La confirmation du mot de passe est obligatoire")
+        .oneOf([yup.ref('password')], "Les mots de passe ne correspondent pas"),
+  phoneNumber: yup.number("Veuillez entrer un numero de téléphone valide")
+                .required("Le numero de téléphone est obligatoire"),
+  gcu: yup.boolean().oneOf([true], "Veuillez accepter les conditions d'utilisation")        
+})
 
 
 function App() {
@@ -16,48 +30,10 @@ function App() {
     console.log("Form submitted... OK");
   }
 
-  function validate(formValues) {
-    const errors =  {};
-
-    if(formValues.name === "") {
-      errors.name = "Le champ nom est obligatoire"
-    }
-
-    if(formValues.email === "")  {
-      errors.email = "Le champ email est obligatoire"
-    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(formValues.email)){
-      errors.email = "Veuillez entrer une adresse e-mail valide";
-    }
-
-    if(formValues.password === "")  {
-      errors.password = "Le mot de passe est obligatoire"
-    } else if(formValues.password.length < 8) {
-      errors.password = "Le mot de passe doit avoir au moins 8 caractères";
-    }
-
-    if(formValues.phoneNumber === "")  {
-      errors.phoneNumber = "Le numero de téléphone est obligatoire"
-    } else if(! /^\d+$/.test(formValues.phoneNumber)) {
-      errors.phoneNumber = "Veuillez entrer un numero de téléphone valide";
-    }
-
-    if(formValues.password !== formValues.passwordConfirmation) {
-      errors.passwordConfirmation = "Les mots de passe ne correspondent pas";
-    }
-
-    if(! formValues.gcu) {
-      errors.gcu = "Veuillez accepter les conditions d'utilisation"
-    }
-
-
-    return errors;
-  }
-
-
   const formik = useFormik({
     initialValues,
     onSubmit: createUser,
-    validate
+    validationSchema
   });
 
   const { name, email, phoneNumber, gcu, passwordConfirmation, password} = formik.values;
