@@ -1,11 +1,11 @@
 import React from "react";
 
-function Sidebar() {
+function Aside() {
     return (
-        <div class="sidebar">
+        <div className="sidebar">
             <div>
-                <h2 class="text-white">Ameliorez l'image de votre entreprise dès aujourd'hui.</h2>
-                <p class="text-white">
+                <h2 className="text-white">Ameliorez l'image de votre entreprise dès aujourd'hui.</h2>
+                <p className="text-white">
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                 </p>
                 <img src="/img/startup.png"/>
@@ -14,4 +14,4 @@ function Sidebar() {
     )
 }
 
-export default Sidebar;
+export default Aside;
