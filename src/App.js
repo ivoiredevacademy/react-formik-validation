@@ -3,16 +3,21 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 
 const validationSchema = yup.object({
-  name: yup.string().required("Le nom est obligatoire"),
-  email: yup.string().required('L\'adresse e-mail est obligatoire')
+  name: yup.string()
+          .required("Le nom est obligatoire"),
+  email: yup.string()
+          .required('L\'adresse e-mail est obligatoire')
           .email("Veuillez saisir une adresse e-mail validate"),
-  password: yup.string().required("Le mot de passe est obligatoire").min(8),
+  password: yup.string()
+              .required("Le mot de passe est obligatoire")
+              .min(8),
   passwordConfirmation: yup.string()
         .required("La confirmation du mot de passe est obligatoire")
         .oneOf([yup.ref('password')], "Les mots de passe ne correspondent pas"),
   phoneNumber: yup.number("Veuillez entrer un numero de téléphone valide")
                 .required("Le numero de téléphone est obligatoire"),
-  gcu: yup.boolean().oneOf([true], "Veuillez accepter les conditions d'utilisation")        
+  gcu: yup.boolean()
+          .oneOf([true], "Veuillez accepter les conditions d'utilisation")        
 })
 
 
@@ -40,7 +45,6 @@ function App() {
   const { handleChange, handleBlur } = formik
 
 
-
   return (
     <div className="App container-fluid">
       <div className="row">
@@ -55,9 +59,7 @@ function App() {
               <div className="form-group">
                 <label htmlFor="name">Nom</label>
                 <input className="form-control" id="name" name="name" type="text" 
-                  value={name}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
+                  { ...formik.getFieldProps('name')}
                 />
                 {
                   formik.errors.name && formik.touched.name && <span className="text-danger">{ formik.errors.name }</span>
@@ -66,9 +68,7 @@ function App() {
               <div className="form-group">
                 <label htmlFor="name">Email</label>
                 <input className="form-control"id="email" name="email" type="email"
-                  value={email}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
+                  { ...formik.getFieldProps('email')}
                 />
                 {
                   formik.errors.email && formik.touched.email && <span className="text-danger">{ formik.errors.email }</span>
@@ -77,20 +77,16 @@ function App() {
               <div className="form-group">
                 <label htmlFor="name">Numéro de téléphone</label>
                 <input className="form-control" type="text" name="phoneNumber"
-                  value={phoneNumber}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
+                  { ...formik.getFieldProps('phoneNumber')}
                 />
                  {
                   formik.errors.phoneNumber && formik.touched.phoneNumber && <span className="text-danger">{ formik.errors.phoneNumber }</span>
                 }
               </div>
               <div className="form-group">
-                <label htmlFor="name">Mot de passe</label>
+                <label htmlFor="password">Mot de passe</label>
                 <input className="form-control" type="password" name="password"
-                  value={password}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
+                  { ...formik.getFieldProps('password')}
                 />
                 {
                   formik.errors.password && formik.touched.password && <span className="text-danger">{ formik.errors.password }</span>
@@ -99,18 +95,15 @@ function App() {
               <div className="form-group">
                 <label htmlFor="name">Mot de passe (confirmation)</label>
                 <input className="form-control" type="password" name="passwordConfirmation"
-                  value={passwordConfirmation}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
+                  { ...formik.getFieldProps('passwordConfirmation')}
                 />
                  {
                   formik.errors.passwordConfirmation && formik.touched.passwordConfirmation && <span className="text-danger">{ formik.errors.passwordConfirmation }</span>
                 }
               </div>
               <div className="custom-control custom-checkbox">
-                <input type="checkbox" className="custom-control-input" id="gcu" checked={gcu}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
+                <input type="checkbox" className="custom-control-input" id="gcu" 
+                  {...formik.getFieldProps({ name: "gcu", checked: false })}
                 />
                 <label className="custom-control-label" htmlFor="gcu">J'accepte <a href="#" _target="blank">les conditions d'utilisation</a></label>
                 {
