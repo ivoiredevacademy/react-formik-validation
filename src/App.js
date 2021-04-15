@@ -1,49 +1,74 @@
 import Aside from "./components/Aside";
-import { useFormik } from "formik";
-import * as yup from "yup";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
-const validationSchema = yup.object({
-  name: yup.string()
-          .required("Le nom est obligatoire"),
-  email: yup.string()
-          .required('L\'adresse e-mail est obligatoire')
-          .email("Veuillez saisir une adresse e-mail validate"),
-  password: yup.string()
-              .required("Le mot de passe est obligatoire")
-              .min(8),
-  passwordConfirmation: yup.string()
-        .required("La confirmation du mot de passe est obligatoire")
-        .oneOf([yup.ref('password')], "Les mots de passe ne correspondent pas"),
-  phoneNumber: yup.number("Veuillez entrer un numero de téléphone valide")
+function emailAsyncValidation(email) {
+
+  return new Promise((resolve, reject) =>  {
+
+    setTimeout(() => {
+      if(email === "juvenal@ivoiredevacademy.com") {
+        reject(false)
+      } else {
+        resolve(true)
+      }
+    }, 1000)
+  })
+}
+
+function formAsyncSubmission(formValues) {
+  return new Promise((resolve, reject) =>  {
+    setTimeout(() => {
+      reject("Form submitted");
+    }, 2000)
+  })
+}
+
+const validationSchema = Yup.object().shape({
+  name: Yup.string().required("Le nom est obligatoire"),
+  email: Yup.string().required("L'adresse e-mail est obligatoire")
+          .email("Veuillez une adresse e-mail valide")
+          .test("checkUniqueEmail", "Cette adresse e-mail est déjà utilisé", async (value) =>  {
+            let isUnique = false;
+
+            try {
+                isUnique = await emailAsyncValidation(value);
+            } catch(error) {
+                console.error(error)
+            }
+
+            return isUnique
+          }),
+  password: Yup.string().required("Le mot de passe est obligatoire")
+              .min(6, "Le mot de passe doit avoir 6 caractères"),
+  passwordConfirmation: Yup.string().oneOf([Yup.ref("password")], "Les mots de passe ne correspondent pas"),
+  phoneNumber: Yup.number().typeError("Veuillez entrer un numero de téléphoe valide")
                 .required("Le numero de téléphone est obligatoire"),
-  gcu: yup.boolean()
-          .oneOf([true], "Veuillez accepter les conditions d'utilisation")        
+  gcu: Yup.boolean().oneOf([true], "Veuillez accepter les conditions d'utilisation")
 })
 
 
+
 function App() {
-  const initialValues =   {
+  const initialValues =  {
     name: "",
     email: "",
+    phoneNumber: "",
     password: "",
     passwordConfirmation: "",
-    phoneNumber: "",
     gcu: false
+  };
+
+  async function handleSubmit(formValues, onSubmittingProps) {
+    try {
+      await formAsyncSubmission(formValues);
+      onSubmittingProps.resetForm()
+
+    } catch(error) {
+      console.error(error);
+    }
   }
-
-  function createUser(values) {
-    console.log("Form submitted... OK");
-  }
-
-  const formik = useFormik({
-    initialValues,
-    onSubmit: createUser,
-    validationSchema
-  });
-
-  const { name, email, phoneNumber, gcu, passwordConfirmation, password} = formik.values;
-  const { handleChange, handleBlur } = formik
-
+  
 
   return (
     <div className="App container-fluid">
@@ -54,66 +79,56 @@ function App() {
         <div className="col-lg-7">
           <div className="row form-container">
             <div className="col-md-12 col-lg-7 mx-auto">
-            <h1>Inscription</h1>
-            <form onSubmit={formik.handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="name">Nom</label>
-                <input className="form-control" id="name" name="name" type="text" 
-                  { ...formik.getFieldProps('name')}
-                />
+              <h1>Inscription</h1>
+              <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
                 {
-                  formik.errors.name && formik.touched.name && <span className="text-danger">{ formik.errors.name }</span>
+                  formik => (
+                    <Form>
+                      <div className="form-group">
+                        <label htmlFor="name">Nom</label>
+                        <Field name="name" type="text" className="form-control"/>
+                        <ErrorMessage name="name" className="text-danger" component="span"/>
+                      </div>
+    
+                      <div className="form-group">
+                        <label htmlFor="email">Email</label>
+                        <Field name="email" type="email" className="form-control"/>
+                        <ErrorMessage name="email" className="text-danger" component="span"/>
+                      </div>
+    
+                      <div className="form-group">
+                        <label htmlFor="phoneNumber">Numéro de téléphone</label>
+                        <Field name="phoneNumber" type="text" className="form-control" id="password"/>
+                        <ErrorMessage name="phoneNumber" className="text-danger" component="span"/>
+                      </div>
+                      
+                      <div className="form-group">
+                        <label htmlFor="password">Mot de passe</label>
+                        <Field name="password" type="password" className="form-control" id="password"/>
+                        <ErrorMessage name="password" className="text-danger" component="span"/>
+                      </div>
+                      
+                      <div className="form-group">
+                        <label htmlFor="passwordConfirmation">Mot de passe (confirmation)</label>
+                        <Field name="passwordConfirmation" type="password"  className="form-control" id="password"/>
+                        <ErrorMessage name="passwordConfirmation" className="text-danger" component="span"/>
+                      </div>
+    
+                      <div className="custom-control custom-checkbox">
+                        <Field name="gcu" type="checkbox" className="custom-control-input" id="gcu" />
+                        <label className="custom-control-label" htmlFor="gcu">J'accepte <a href="#" _target="blank">les conditions d'utilisation</a></label>
+                        <ErrorMessage name="gcu" className="text-danger" component="div"/>
+                      </div>
+                      
+                      <div className="form-group mt-4">
+                      <button className="btn btn-light-primary px-4"
+                        disabled={! formik.isValid || formik.isSubmitting}
+                      >Créer mon compte</button>
+                    </div>
+                    </Form>
+                  )
                 }
-              </div> 
-              <div className="form-group">
-                <label htmlFor="name">Email</label>
-                <input className="form-control"id="email" name="email" type="email"
-                  { ...formik.getFieldProps('email')}
-                />
-                {
-                  formik.errors.email && formik.touched.email && <span className="text-danger">{ formik.errors.email }</span>
-                }
-              </div>
-              <div className="form-group">
-                <label htmlFor="name">Numéro de téléphone</label>
-                <input className="form-control" type="text" name="phoneNumber"
-                  { ...formik.getFieldProps('phoneNumber')}
-                />
-                 {
-                  formik.errors.phoneNumber && formik.touched.phoneNumber && <span className="text-danger">{ formik.errors.phoneNumber }</span>
-                }
-              </div>
-              <div className="form-group">
-                <label htmlFor="password">Mot de passe</label>
-                <input className="form-control" type="password" name="password"
-                  { ...formik.getFieldProps('password')}
-                />
-                {
-                  formik.errors.password && formik.touched.password && <span className="text-danger">{ formik.errors.password }</span>
-                }
-              </div>
-              <div className="form-group">
-                <label htmlFor="name">Mot de passe (confirmation)</label>
-                <input className="form-control" type="password" name="passwordConfirmation"
-                  { ...formik.getFieldProps('passwordConfirmation')}
-                />
-                 {
-                  formik.errors.passwordConfirmation && formik.touched.passwordConfirmation && <span className="text-danger">{ formik.errors.passwordConfirmation }</span>
-                }
-              </div>
-              <div className="custom-control custom-checkbox">
-                <input type="checkbox" className="custom-control-input" id="gcu" 
-                  {...formik.getFieldProps({ name: "gcu", checked: false })}
-                />
-                <label className="custom-control-label" htmlFor="gcu">J'accepte <a href="#" _target="blank">les conditions d'utilisation</a></label>
-                {
-                  formik.errors.gcu && formik.touched.gcu && <span className="text-danger d-block">{ formik.errors.gcu }</span>
-                }
-              </div>
-              <div className="form-group mt-4">
-                <button className="btn btn-light-primary px-4">Créer mon compte</button>
-              </div>
-            </form>
+              </Formik>
             </div>
           </div>
         </div>
