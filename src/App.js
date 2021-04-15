@@ -2,8 +2,21 @@ import Aside from "./components/Aside";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
+function emailAsyncValidation(email) {
 
-function formApi(formValues) {
+  return new Promise((resolve, reject) =>  {
+
+    setTimeout(() => {
+      if(email === "juvenal@ivoiredevacademy.com") {
+        reject(false)
+      } else {
+        resolve(true)
+      }
+    }, 1000)
+  })
+}
+
+function formAsyncSubmission(formValues) {
   return new Promise((resolve, reject) =>  {
     setTimeout(() => {
       reject("Form submitted");
@@ -14,7 +27,18 @@ function formApi(formValues) {
 const validationSchema = Yup.object().shape({
   name: Yup.string().required("Le nom est obligatoire"),
   email: Yup.string().required("L'adresse e-mail est obligatoire")
-          .email("Veuillez une adresse e-mail valide"),
+          .email("Veuillez une adresse e-mail valide")
+          .test("checkUniqueEmail", "Cette adresse e-mail est déjà utilisé", async (value) =>  {
+            let isUnique = false;
+
+            try {
+                isUnique = await emailAsyncValidation(value);
+            } catch(error) {
+                console.error(error)
+            }
+
+            return isUnique
+          }),
   password: Yup.string().required("Le mot de passe est obligatoire")
               .min(6, "Le mot de passe doit avoir 6 caractères"),
   passwordConfirmation: Yup.string().oneOf([Yup.ref("password")], "Les mots de passe ne correspondent pas"),
@@ -37,7 +61,7 @@ function App() {
 
   async function handleSubmit(formValues, onSubmittingProps) {
     try {
-      await formApi(formValues);
+      await formAsyncSubmission(formValues);
       onSubmittingProps.resetForm()
 
     } catch(error) {
