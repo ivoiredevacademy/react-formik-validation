@@ -2,6 +2,15 @@ import Aside from "./components/Aside";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
+
+function formApi(formValues) {
+  return new Promise((resolve, reject) =>  {
+    setTimeout(() => {
+      reject("Form submitted");
+    }, 2000)
+  })
+}
+
 const validationSchema = Yup.object().shape({
   name: Yup.string().required("Le nom est obligatoire"),
   email: Yup.string().required("L'adresse e-mail est obligatoire")
@@ -15,6 +24,7 @@ const validationSchema = Yup.object().shape({
 })
 
 
+
 function App() {
   const initialValues =  {
     name: "",
@@ -25,8 +35,14 @@ function App() {
     gcu: false
   };
 
-  function handleSubmit(formValues) {
-    console.log("Form values", formValues)
+  async function handleSubmit(formValues, onSubmittingProps) {
+    try {
+      await formApi(formValues);
+      onSubmittingProps.resetForm()
+
+    } catch(error) {
+      console.error(error);
+    }
   }
   
 
@@ -44,48 +60,48 @@ function App() {
                 {
                   formik => (
                     <Form>
-                    <div className="form-group">
-                      <label htmlFor="name">Nom</label>
-                      <Field name="name" type="text" className="form-control"/>
-                      <ErrorMessage name="name" className="text-danger" component="span"/>
+                      <div className="form-group">
+                        <label htmlFor="name">Nom</label>
+                        <Field name="name" type="text" className="form-control"/>
+                        <ErrorMessage name="name" className="text-danger" component="span"/>
+                      </div>
+    
+                      <div className="form-group">
+                        <label htmlFor="email">Email</label>
+                        <Field name="email" type="email" className="form-control"/>
+                        <ErrorMessage name="email" className="text-danger" component="span"/>
+                      </div>
+    
+                      <div className="form-group">
+                        <label htmlFor="phoneNumber">Numéro de téléphone</label>
+                        <Field name="phoneNumber" type="text" className="form-control" id="password"/>
+                        <ErrorMessage name="phoneNumber" className="text-danger" component="span"/>
+                      </div>
+                      
+                      <div className="form-group">
+                        <label htmlFor="password">Mot de passe</label>
+                        <Field name="password" type="password" className="form-control" id="password"/>
+                        <ErrorMessage name="password" className="text-danger" component="span"/>
+                      </div>
+                      
+                      <div className="form-group">
+                        <label htmlFor="passwordConfirmation">Mot de passe (confirmation)</label>
+                        <Field name="passwordConfirmation" type="password"  className="form-control" id="password"/>
+                        <ErrorMessage name="passwordConfirmation" className="text-danger" component="span"/>
+                      </div>
+    
+                      <div className="custom-control custom-checkbox">
+                        <Field name="gcu" type="checkbox" className="custom-control-input" id="gcu" />
+                        <label className="custom-control-label" htmlFor="gcu">J'accepte <a href="#" _target="blank">les conditions d'utilisation</a></label>
+                        <ErrorMessage name="gcu" className="text-danger" component="div"/>
+                      </div>
+                      
+                      <div className="form-group mt-4">
+                      <button className="btn btn-light-primary px-4"
+                        disabled={! formik.isValid || formik.isSubmitting}
+                      >Créer mon compte</button>
                     </div>
-  
-                    <div className="form-group">
-                      <label htmlFor="email">Email</label>
-                      <Field name="email" type="email" className="form-control"/>
-                      <ErrorMessage name="email" className="text-danger" component="span"/>
-                    </div>
-  
-                    <div className="form-group">
-                      <label htmlFor="phoneNumber">Numéro de téléphone</label>
-                      <Field name="phoneNumber" type="text" className="form-control" id="password"/>
-                      <ErrorMessage name="phoneNumber" className="text-danger" component="span"/>
-                    </div>
-                    
-                    <div className="form-group">
-                      <label htmlFor="password">Mot de passe</label>
-                      <Field name="password" type="password" className="form-control" id="password"/>
-                      <ErrorMessage name="password" className="text-danger" component="span"/>
-                    </div>
-                    
-                    <div className="form-group">
-                      <label htmlFor="passwordConfirmation">Mot de passe (confirmation)</label>
-                      <Field name="passwordConfirmation" type="password"  className="form-control" id="password"/>
-                      <ErrorMessage name="passwordConfirmation" className="text-danger" component="span"/>
-                    </div>
-  
-                   
-                    <div className="custom-control custom-checkbox">
-                      <Field name="gcu" type="checkbox" className="custom-control-input" id="gcu" />
-                      <label className="custom-control-label" htmlFor="gcu">J'accepte <a href="#" _target="blank">les conditions d'utilisation</a></label>
-                      <ErrorMessage name="gcu" className="text-danger" component="div"/>
-                    </div>
-                    
-                    <div className="form-group mt-4">
-                      <button className="btn btn-light-primary px-4">Créer mon compte</button>
-                    </div>
-                  </Form>
-                
+                    </Form>
                   )
                 }
               </Formik>
